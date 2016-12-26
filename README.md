@@ -1,4 +1,4 @@
-# Multirack solution for Kubernetes cluster
+# Multirack solution for Kubernetes cluster [![Build Status](https://travis-ci.org/xenolog/kargo-multirack.svg?branch=master)](https://travis-ci.org/xenolog/kargo-multirack)
 
 This repo contains Ansible Cookbook, for configure existing 
 k8s environment to multirack case.
@@ -79,7 +79,7 @@ Example:
 Removing intermediate container 79bd1bebf920
 Successfully built _503598dcebd2_
 
-# tag 503598dcebd2 xenolog/k8s-rr-container:20161222-01
+# docker tag 503598dcebd2 xenolog/k8s-rr-container:20161222-01
 # docker push  xenolog/k8s-rr-container:20161222-01
 
 ```

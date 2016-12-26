@@ -1,0 +1,12 @@
+---
+language: python
+python: "2.7"
+sudo: required
+services:
+  - docker
+before_script:
+  - ./scripts/playbook_check_container_version.sh
+script:
+  - ./scripts/container_build.sh
+after_success:
+  - ./scripts/container_push.sh

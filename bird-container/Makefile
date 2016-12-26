@@ -69,7 +69,7 @@ build-container: $(CONFD_BIN) $(BIRD_BIN)
 	(cp $(BIRD_BIN) root/bin/)
 	(cp $(BIRDC_BIN) root/bin/)
 	(cp $(BIRDCL_BIN) root/bin/)
-	(docker build -t $(CONTAINER) -f Dockerfile .)
+	(docker build -t $(CONTAINER) -f Dockerfile . | tee $(TMP)/build.log)
 
 .PHONY: list-tags
 list-tags:

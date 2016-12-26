@@ -13,7 +13,7 @@
   roles:
     - role: multirack/bird-container
       bgpd_mode: rr
-      bgpd_container_tag: 20161222-01
+      bgpd_container_tag: latest
       etcd_authority: "{%for a in groups.etcd%}https://{{a}}:2379/{%if not loop.last%},{%endif%}{%endfor%}"
       tags: network
 
@@ -21,7 +21,7 @@
   roles:
     - role: multirack/bird-container
       bgpd_mode: node
-      bgpd_container_tag: 20161222-01
+      bgpd_container_tag: latest
       etcd_authority: "{%for a in groups.etcd%}https://{{a}}:2379/{%if not loop.last%},{%endif%}{%endfor%}"
       tags: network
 
