@@ -5,6 +5,11 @@ set -o nounset
 set -o pipefail
 
 function check_container_version {
+    if [ "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]; then
+         echo "This check only for PR allowed, not for push."
+         exit 0
+    fi
+
     local branch=$TRAVIS_BRANCH
 
     for TAG in $(cat cluster.yaml  | grep bgpd_container_tag | awk '{print $2}' | sort | uniq) ; do
