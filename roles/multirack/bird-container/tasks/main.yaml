@@ -3,7 +3,6 @@
 - name: Install addition packages
   apt: name={{item}} state=latest
   with_items:
-    - docker.io
     - python-docker
 - name: Download Route Redistributer container
   docker_image: name=xenolog/k8s-rr-container:{{ bgpd_container_tag }}
