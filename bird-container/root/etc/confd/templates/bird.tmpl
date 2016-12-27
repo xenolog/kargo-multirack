@@ -103,6 +103,7 @@ protocol bgp 'node-{{$client_ipaddr}}' {
   rr client;
   import all;
   export all;
+  add paths;
   next hop {{$client_nexthop}};
   source address {{$local_ipaddr}};
 }
@@ -117,6 +118,7 @@ protocol bgp 'RR-{{$rr_ipaddr}}' {
   description "RR-{{$rr_ipaddr}}";
   import all;
   export filter exported_by_bgp;
+  add paths;
   next hop self;
   source address {{$local_ipaddr}};
 }{{end}}
