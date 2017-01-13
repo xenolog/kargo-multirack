@@ -5,8 +5,9 @@ sudo: required
 services:
   - docker
 before_script:
-  - ./scripts/playbook_check_container_version.sh
+  - ./CI/playbook_check_container_version.sh
 script:
-  - ./scripts/container_build.sh
+  - ./CI/container_build.sh
+  - ./CI/container_test.sh
 after_success:
-  - ./scripts/container_push.sh
+  - ./CI/container_push.sh
