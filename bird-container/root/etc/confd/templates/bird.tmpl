@@ -9,8 +9,8 @@ log stderr all;
 
 {{if ne $bgpd_mode "RR"}}
 # Override router ID
-router id {{$local_ipaddr}}
-{{end}};
+router id {{$local_ipaddr}};
+{{end}}
 
 # Turn on global debugging of all protocols
 debug protocols all;
