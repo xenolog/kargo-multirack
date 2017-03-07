@@ -1,0 +1,12 @@
+[template]
+prefix = ""
+src = "bird_calico.tmpl"
+dest = "/etc/bird/bird.conf"
+owner = "root"
+mode = "0644"
+keys = [
+  "/calico/bgp/v1",
+  "/multirack_topology",
+]
+check_cmd = "bird -p -c {{.src}}"
+reload_cmd = "birdcl -s /var/run/bird.ctl configure"
