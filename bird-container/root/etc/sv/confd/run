@@ -10,6 +10,12 @@ else
     DBG='--log-level=error'
 fi
 
+if [ "${PEERING_SOURCE}" == "calico" ] ; then
+    rm -f /etc/confd/conf.d/bird.toml
+else
+    rm -f /etc/confd/conf.d/bird_calico.toml
+fi
+
 ETCD_ENDPOINTS_CONFD=$(echo "-node=$ETCD_AUTHORITY" | sed -e 's/,/ -node=/g')
 
 exec confd -confdir=/etc/confd -interval=5 -watch $DBG $ETCD_ENDPOINTS_CONFD

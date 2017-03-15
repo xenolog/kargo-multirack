@@ -20,6 +20,8 @@ if [ "$IMG_ID" == "" ] ; then
     exit 1
 fi
 
+echo "Testing BIRD containers functional for 'multirack_topology' data source"
+echo
 echo "Run etcd container"
 ETCDC=$(docker run -d xenolog/etcd:latest)
 ETCD_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $ETCDC)
@@ -42,7 +44,7 @@ PEER2_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $PEER2C)
 echo "..Peer-2 IP: $PEER2_IP"
 
 echo
-echo "Upload multirack_topology data structure into etcd"
+echo "Upload '/multirack_topology' data structure into etcd"
 cat << EOF > /tmp/multirack_topology.yaml
 racks:
   "1":

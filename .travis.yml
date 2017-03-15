@@ -8,6 +8,7 @@ before_script:
   - ./CI/playbook_check_container_version.sh
 script:
   - ./CI/container_build.sh
-  - ./CI/container_test.sh
+  - ./CI/container_DS-MRT_test.sh
+  - ./CI/container_DS-Calico_test.sh
 after_success:
   - ./CI/container_push.sh

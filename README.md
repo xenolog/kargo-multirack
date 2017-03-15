@@ -93,5 +93,20 @@ HOSTNAME=svasilenko-01-001
 RACK=1
 BGPD_MODE=RR  # may be RR or NODE (default)
 IP=10.222.1.1
+RR_BGP_PORT=179
+TOR_BGP_PORT=179
+PEERING_SOURCE=calico  # NT (default) or Calico
 DEBUG=1
+```
+
+If 'calico' PEERING_SOURCE used, you can (but not obligatory) extend calico data model by custom fields:
+```
+calico:
+  bgp:
+    v1:
+      rr_v4:
+        10.222.1.1: '{"ip":"10.222.1.1","cluster_id":"1"}'
+                  # \ default Calico's RR definition
+        10.222.2.1: '{"ip":"10.222.2.1","cluster_id":"2","as_num":"64444","bgp_port":"180"}'
+                  # \ Extended RR definition with AS number and BGP port specifyed
 ```

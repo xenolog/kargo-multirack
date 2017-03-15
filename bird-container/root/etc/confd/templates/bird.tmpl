@@ -1,7 +1,7 @@
-{{$rack_no := getenv "RACK"}}
-{{$bgpd_mode := getenv "BGPD_MODE"}}
-{{$local_ipaddr := getenv "IP"}}
-{{$local_asnum := getv (printf "/racks/%s/as_number" $rack_no)}}
+{{- $rack_no := getenv "RACK" -}}
+{{- $bgpd_mode := getenv "BGPD_MODE" -}}
+{{- $local_ipaddr := getenv "IP" -}}
+{{- $local_asnum := getv (printf "/racks/%s/as_number" $rack_no) -}}
 
 # Configure logging
 #log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
