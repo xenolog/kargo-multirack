@@ -1,11 +1,27 @@
 ---
-- generate_multirack_topology: inventory="{% for host in groups['all'] %}{{ hostvars[host]|to_json }}{% endfor %}"
-  register: multirack_topology
-#- debug: var=multirack_topology
-- copy: dest={{multirack_topology_tmp_file}} content="{{multirack_topology}}" mode=644
-  register: multirack_topology_file
-- command: etcdtool -p "{{etcd_authority}}" import -y -f json /multirack_topology {{multirack_topology_tmp_file}}
-  when: multirack_topology_file.changed
-  register: multirack_topology_uploaded
-- file: path=multirack_topology_tmp_file state=absent
-  when: multirack_topology_uploaded|failed
+# generate and upload into etcd 'multirack_topology' data
+- block:
+  - generate_multirack_topology: peering_source={{ peering_source }} inventory="{% for host in groups['all'] %}{{ hostvars[host]|to_json }}{% endfor %}"
+    register: multirack_topology
+  #- debug: var=multirack_topology
+  - copy: dest={{multirack_topology_tmp_file}} content="{{multirack_topology['result']}}" mode=644
+    register: multirack_topology_file
+  - shell: echo 'yes' | etcdtool -p "{{etcd_authority}}" import -r -y -f json /multirack_topology "{{multirack_topology_tmp_file}}"
+    when: multirack_topology_file.changed
+    register: multirack_topology_uploaded
+  - file: path="{{multirack_topology_tmp_file}}" state=absent
+    when: multirack_topology_uploaded|failed
+# generate and upload into etcd additional peering for Calico nodes
+- block:
+    - generate_node_peer_list: inventory="{% for host in groups['all'] %}{{ hostvars[host]|to_json }}{% endfor %}"
+      register: node_peer_list
+    #- debug: var=node_peer_list
+    - copy: dest={{calico_peering_data_tmp_file}} content="{{node_peer_list['result']}}" mode=644
+      register: node_peer_list_file
+    - command: etcdtool -p "{{etcd_authority}}" import -y -f json /calico "{{calico_peering_data_tmp_file}}"
+      when: node_peer_list_file.changed
+      register: node_peer_list_uploaded
+    - file: path="{{calico_peering_data_tmp_file}}" state=absent
+      when: node_peer_list_uploaded|failed
+  when:
+    - peering_source == 'calico'

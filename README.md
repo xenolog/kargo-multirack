@@ -15,7 +15,11 @@ node2    ansible_host=10.90.1.3 ip=10.90.1.3
 node3    ansible_host=10.90.2.4 ip=10.90.2.4
 
 [all:vars]
-calico_network_backend="none"
+peering_source="MT"            # or "calico" -- source for peering information.
+calico_network_backend="none"  # should be "none" if you want use non-stardart bird container on compute nodes (peering_source should be set to "MT")
+rr_bgpport=180                 # specify alternative BGP port for RR container
+tor_bgpport=179                # specify alternative BGP port, used on TOR switch
+bgpport=179                    # specify alternative BGP port for Bird on compute nodes
 
 .....
 
@@ -63,7 +67,16 @@ Deployment can be started by
 ```
 # ansible-playbook -i $INVENTORY ./cluster.yaml -e @/root/k8s_customization.yaml
 ```
-Where `INVENTORY` may be inventory file or dynamic inventory from `vagrant-multirack`, `-e ...` is optional.
+Where `INVENTORY` may be inventory file or dynamic inventory from `vagrant-multirack`, `-e ...` is optional. If dynamic inventory from `vagrant-multirack` used, you can customize multirack deployment by creating additional group_var file and provide its path to `KARGO_GROUP_VARS` variable, ex:
+```
+# export KARGO_GROUP_VARS=/root/k8s_group_vars.yaml
+# cat /root/k8s_group_vars.yaml
+bgpd_container_tag: latest
+peering_source: calico
+rr_bgpport: 180
+tor_bgpport: 179
+bgpport: 179
+```
 
 ---
 Route Redistribution container, implements Route-Reflector, Calico-node, ExtIP announce for multi-rack deployment of Kubernetes.
@@ -93,9 +106,10 @@ HOSTNAME=svasilenko-01-001
 RACK=1
 BGPD_MODE=RR  # may be RR or NODE (default)
 IP=10.222.1.1
-RR_BGP_PORT=179
-TOR_BGP_PORT=179
-PEERING_SOURCE=calico  # NT (default) or Calico
+RR_BGP_PORT=180
+TOR_BGP_PORT=179   # should be differ with NODE_BGP_PORT 
+NODE_BGP_PORT=179  # if running on the same node
+PEERING_SOURCE=MT  # MT (default) or 'calico'
 DEBUG=1
 ```
 
