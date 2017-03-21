@@ -24,12 +24,12 @@ print_hr
 msg \
   "This is the demo of advanced BGP configuration with ECMP for Kubernetes" \
   "and External IP Controller feature. The main goal is to deploy environment" \
-  "with route-reflectors and multi-rack topology, and present service's " \
+  "with route-reflectors and multi-rack topology, and to present service's " \
   "fault-tolerance, provided by ECMP." \
   "" \
   "This demo is presented on two-rack virtual environment that was deployed using" \
   "vagrant (https://github.com/xenolog/vagrant-multirack). All commands run" \
-  "on the master node" \
+  "on the master node." \
   "" \
   "Network topology and role definition for this demo:" \
   "Master-node has name 'svasilenko-000', located out of cluster network and" \
@@ -48,7 +48,7 @@ msg \
 echo ; print_hr
 msg \
   "This cluster is deployed using Kargo with Flannel network plugin. ECMP" \
-  "feature is network-plugin agnostic if External IP Controller used."
+  "feature is network-plugin agnostic if External IP Controller is in use."
 echo
 
 run "cat /root/k8s_customization.yaml | grep -e kube_network_plugin -e extip_"
@@ -102,10 +102,10 @@ done ; true
 echo
 run ssh $NODE_CP kubectl get svc nginxsvc -o wide --show-all
 echo && msg \
-  "EXTERNAL-IP addresses should appear into a route table of all BGP"\
+  "EXTERNAL-IP addresses should appear in the routing tables of all BGP"\
   "cluster's peers."\
   "This node is outside cluster and has peering to cluster."\
-  "We can check existance such routes:"
+  "We can check existance of such routes:"
 echo
 run ip route show
 
@@ -113,16 +113,16 @@ run ip route show
 # Demonstrate fault tolerance
 echo ; print_hr
 msg \
-  "I will emulate failure of connectivity with each rack one by one, and both " \
-  "for demonstrate failure tolerance of ECMP feature if at least one rack alive" \
+  "I will emulate failure of connectivity on each rack one by one, and on both " \
+  "to demonstrate failure tolerance of ECMP feature if at least one rack alive" \
   "" \
   "Failures will be made by destroying virtual commutator."
 echo
 run curl -L --head http://10.0.0.7/
 run ip route show
-echo && msg "Nginx on a some rack is served requests."
+echo && msg "Nginx on some rack is serving requests."
 sleep $SHORT
-echo && msg "Make failure on the 1st rack:"
+echo && msg "Make a failure on the 1st rack:"
 run systemctl stop tor@1
 rc=1 ; while [ $rc != 0 ] ;do
   # 'via' after IP address is guarantee, only one route present
@@ -131,12 +131,12 @@ rc=1 ; while [ $rc != 0 ] ;do
 done ; true
 run curl -L --head http://10.0.0.7/
 run ip route show
-echo && msg "Nginx on the 2nd rack is served requests."
+echo && msg "Nginx on the 2nd rack is serving requests."
 sleep $SHORT
-echo && msg "Restore 1st rack and failure on the 2nd rack:"
+echo && msg "Restore 1st rack and introduce a failure on the 2nd rack:"
 run systemctl start tor@1
 rc=1 ; while [ $rc != 0 ] ;do
-  # double space between IP address and 'proto' required
+  # double space between IP address and 'proto' is required
   # such notation guarantee more than one route present
   ip r show  |grep '10.0.0.7  proto bird' 2>&1 > /dev/null ; rc=$?
   test $rc != 0 && sleep 1
@@ -149,17 +149,17 @@ rc=1 ; while [ $rc != 0 ] ;do
 done ; true
 run curl -L --head http://10.0.0.7/
 run ip route show
-echo && msg "Nginx on the 1nd rack is served requests."
+echo && msg "Nginx on the 1nd rack is serving requests."
 sleep $SHORT
-echo && msg "Failure all racks and see no answers:"
+echo && msg "Introduce a failure on all racks and see no answers:"
 run systemctl stop tor@1
 run systemctl status tor@1 | head -n 5
 run systemctl status tor@2 | head -n 5
 run curl -L --head http://10.0.0.7/
 run ip route show
-echo && msg "There are no connectivity with service"
+echo && msg "There is no connectivity with service."
 sleep $SHORT
-echo && msg "Resore normal connectivity:"
+echo && msg "Restore normal connectivity:"
 run systemctl start tor@1
 run systemctl start tor@2
 rc=1 ; while [ $rc != 0 ] ;do
@@ -172,7 +172,8 @@ run curl -L --head http://10.0.0.7/
 run ip route show
 print_hr
 echo && msg \
-  "As you see, workloads into k8s cluster can be reserved by ECMP feature." \
+  "As you can see, fault-tolerance for (workloads of) k8s cluster is provided " \
+  "by ECMP feature." \
   "" \
   "  that's all..."
 
