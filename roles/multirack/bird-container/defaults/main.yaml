@@ -1,0 +1,3 @@
+---
+bgpd_container_tag: latest
+peering_source: MT

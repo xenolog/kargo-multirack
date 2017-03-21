@@ -1,3 +1,5 @@
 ---
 multirack_topology_tmp_file: /tmp/multirack_topology.json
+calico_peering_data_tmp_file: /tmp/calico_peering_data.json
 etcd_port: 2379
+peering_source: MT

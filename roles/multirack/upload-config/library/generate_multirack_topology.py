@@ -12,6 +12,11 @@ description:
   - Generate multirack_topology hash from inventory. Result can be uploaded into etcd
 version_added: "2.0"
 options:
+  peering_source:
+    required: false
+    default: NT
+    description:
+      - Data source for peering between Nodes and RRs. May be 'calico' or 'NT'
   inventory:
     required: true
     default: null
@@ -30,10 +35,14 @@ EXAMPLES = """
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(inventory = dict(required=True))
+        argument_spec=dict(
+            inventory=dict(required=True),
+            peering_source=dict(default='NT', choices=['NT', 'calico'])
+        )
     )
     # this is a workaround to https://github.com/ansible/ansible/issues/13838
-    inventory = "[" + module.params.get("inventory").replace("}{","},{") + "]"
+    inventory = "[" + module.params.get("inventory").replace("}{", "},{") + "]"
+    peering_source = module.params.get("peering_source")
     nodes = json.loads(inventory)
     racks = {}
     for node in nodes:
@@ -44,34 +53,36 @@ def main():
         if racks.get(rack_no_name, None) == None:
             # we can setup rack by first node, because group-based variables are equal for all nodes into rack
             racks[rack_no_name] = {
-              'RRs': [],
-              'RR-clients': [],
               'rack_no': rack_no,
               'as_number': node.get('as_number', 65000+rack_no),
               'subnet': node.get('subnet', "10.222.{0}.0/24".format(rack_no)),
               'tor': node.get('tor', "10.222.{0}.254".format(rack_no)),
               'bgpport': int(node.get('bgpport', 179)),
+              'tor_bgpport': int(node.get('tor_bgpport', 179)),
               'rr_bgpport': int(node.get('rr_bgpport', int(node.get('bgpport', 179)) + 1))
             }
-        racks[rack_no_name]['RR-clients'].append({
-          'ipaddr': node.get('ip'),
-          'bgpport': int(node.get('bgpport', 179)),
-          'nexthop': node.get('nexthop', 'keep')
-        })
-        if 'bird-rr' in node.get('group_names', []):
-            # RR should be run on kube_master
-            racks[rack_no_name]['RRs'].append({
+            if 'calico' != peering_source:
+                racks[rack_no_name]['RRs'] = []
+                racks[rack_no_name]['RR-clients'] = []
+        if 'calico' != peering_source:
+            racks[rack_no_name]['RR-clients'].append({
               'ipaddr': node.get('ip'),
-              'bgpport': racks[rack_no_name]['rr_bgpport'],
+              'bgpport': int(node.get('bgpport', 179)),
               'nexthop': node.get('nexthop', 'keep')
             })
-    for rack in racks:
-        # remove temporary saved values
-        del(racks[rack]['rr_bgpport'])
+            if 'bird-rr' in node.get('group_names', []):
+                # RR should be run on kube_master
+                racks[rack_no_name]['RRs'].append({
+                  'ipaddr': node.get('ip'),
+                  'bgpport': racks[rack_no_name]['rr_bgpport'],
+                  'nexthop': node.get('nexthop', 'keep')
+                })
     res = {
-      'racks': racks,
+      'result': {
+        'racks': racks,
+      }
     }
     module.exit_json(**res)
 
 if __name__ == '__main__':
-        main()
+    main()
