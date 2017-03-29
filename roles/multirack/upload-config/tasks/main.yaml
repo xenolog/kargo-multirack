@@ -1,4 +1,5 @@
 ---
+- debug: var=peering_source
 # generate and upload into etcd 'multirack_topology' data
 - block:
   - generate_multirack_topology: peering_source={{ peering_source }} inventory="{% for host in groups['all'] %}{{ hostvars[host]|to_json }}{% endfor %}"
