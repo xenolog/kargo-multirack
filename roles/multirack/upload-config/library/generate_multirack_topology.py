@@ -14,9 +14,9 @@ version_added: "2.0"
 options:
   peering_source:
     required: false
-    default: NT
+    default: MT
     description:
-      - Data source for peering between Nodes and RRs. May be 'calico' or 'NT'
+      - Data source for peering between Nodes and RRs. May be 'calico' or 'MT'
   inventory:
     required: true
     default: null
@@ -37,7 +37,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             inventory=dict(required=True),
-            peering_source=dict(default='NT', choices=['NT', 'calico'])
+            peering_source=dict(default='MT', choices=['MT', 'calico'])
         )
     )
     # this is a workaround to https://github.com/ansible/ansible/issues/13838
