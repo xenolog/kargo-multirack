@@ -30,29 +30,31 @@ rm -rf /root/bird-containers
 # intro
 print_hr
 msg \
-  "This is a demo of Calico Route-Reflector container separation feature."\
-  "It demonstrate, how Route-Reflector can be co-executed with calico-node"\
-  "container on the same node."\
-  "This functionality achieved by bird into RR-container listen on non-standart"\
-  "port.It's allowed to use ordinary calico-node container with its bird daemon"\
-  "on minion nodes. Advanced bird container should be used for Route-Reflector"\
-  "functional, and may be used (not obligatory) as replacement of bird daemon"\
-  "into calico-node container. Advanced bird container is full compotible with"\
-  "native Calico data format, all information for build peering tree stored"\
-  "into '/calico' subtree of etcd."\
+  "This is a demo of Calico BIRD separation feature."\
+  "It demonstrates how Route-Reflector can be run with calico-node container"\
+  "together on the same node."\
+  "This functionality is achieved by using bird that runs in the RR-container"\
+  "and listens on non-standard port. It's allowed to use standard calico-node"\
+  "container with its bird daemon on worker nodes. Advanced bird container"\
+  "should be used for Route-Reflector functionality, and it may be used (not"\
+  "obligatory) as a replacement of bird daemon in the calico-node container."\
+  "Advanced bird container is fully compatible with native Calico data"\
+  "format/model, all information for building of peer tree is stored in the"\
+  "'/calico' subtree of Etcd."\
   "" \
-  "This feature also give an ability to peering between RR and corresponded TOR"\
-  "switch for multi-rack topology. I.e. nodes has BGP peering only with"\
-  "oute Reflectors. Peering with TOR switch is out of scope of Calico data plane"\
-  "and privided into dedicated sub-tree '/multirack_topology' of etcd." \
+  "This feature also gives an ability to provide peering between RR and"\
+  "appropriate TOR switch for multi-rack topology. I.e., nodes have BGP peering"\
+  "only with Route Reflectors. Peering with TOR switch is out of scope for"\
+  "Calico data plane/model and is provided in the dedicated sub-tree"\
+  "'/multirack_topology' of Etcd."\
   "" \
-  "This demo is present on the two-rack virtual environment that was deployed," \
-  "using vagrant (https://github.com/xenolog/vagrant-multirack). All commands" \
-  "runs on the master node." \
+  "This demo is shown on the two-rack virtual environment that was deployed"\
+  "using vagrant (https://github.com/xenolog/vagrant-multirack). All commands"\
+  "are executed on the master node."\
   "" \
-  "Network topology and role definition for this demo:" \
-  "Master-node has name 'svasilenko-000', located out of cluster network and" \
-  "has BGP peering with core switch of cluster."\
+  "Network topology and role definition for this demo:"\
+  "Master node is named 'svasilenko-000', it is located out of cluster network"\
+  "and has BGP peering with a core switch of the cluster."\
   "Rack #1:" \
   "  - svasilenko-01-001 -- k8s control plane + minion + RR" \
   "  - svasilenko-01-002 -- k8s control plane + minion + RR" \
@@ -112,15 +114,15 @@ sleep $SHORT
 # Explain, what we should do for multi-rack setup with RRs and run it
 echo ; print_hr
 msg \
-  "For deploy network configuration with Route-Reflectors we should done"\
-  "following actions:" \
+  "To deploy network configuration with Route-Reflectors we should do the"\
+  "following actions:"\
   " * disable node mesh"\
   " * upload configuration of route-reflectors into etcd"\
-  " * configure sessions between route-reflectors and corresponded nodes"\
+  " * configure sessions between route-reflectors and appropriate nodes"\
   " * configure sessions between rack's route-reflectors and TOR switches"\
-  " * start RR-containers on following nodes"\
+  " * start RR-containers on nodes"\
   ""\
-  "For apply this we should clone and run the ansible playbooks."
+  "In order to apply this we should clone and run the ansible playbooks."
 echo
 run cd
 run git clone https://github.com/Mirantis/bird-containers
@@ -142,7 +144,7 @@ msg \
   "changes for RR usage:" \
   " * the BGP mesh mode disabled"\
   " * all Route reflectors are configured"\
-  " * Calico-nodes are configured for BGP peering only with corresponded RRs"
+  " * Calico-nodes are configured for BGP peering only with appropriate RRs"
 echo
 run "ssh $NODE_CP etcdctl --endpoints=$ETCD_EP get /calico/bgp/v1/global/node_mesh"
 run "ssh $NODE_CP etcdtool -p $ETCD_EP export -f yaml /calico/bgp/v1/rr_v4"
@@ -155,15 +157,15 @@ msg \
 sleep $SHORT
 echo ; print_hr
 msg \
-  "Now, I'll demonstrate functional part. For example, I take two nodes from 1st" \
+  "Now, I'll demonstrate functional part. For example, I take two nodes from 1st"\
   "rack. Node $NODE_CP has a k8s control-plane, minion and RR roles."\
   "This node should present:"\
   " * both calico-node and Route-Reflector containers should be run"\
   " * Route-Reflector container has BGP sessions to all minions of this rack,"\
   "   TOR switch, and all another RRs of this rack (this rack has two RRs)"\
-  " * bird daemon into RR-container should listen on the TCP/180 port" \
-  " * Node bird container has only BGP sessions with RRs of this rack"\
-  " * bird daemon into Node container should listen on the TCP/179 port"
+  " * bird daemon in RR-container should listen on the TCP/180 port" \
+  " * bird in calico-node container has BGP sessions with RRs of this rack only"\
+  " * bird daemon in Node container should listen on the TCP/179 port"
 echo
 run "ssh $NODE_CP docker ps | grep -i -e calico -e bird"
 run "ssh $NODE_CP docker exec bird-rr.service birdcl -s /var/run/bird.ctl sh proto | grep -i bgp"
@@ -185,10 +187,10 @@ sleep $SHORT
 # Create example service
 echo ; print_hr
 msg \
-  "Well, It remains only to show that k8s cluster with such configuration"\
-  "provide connectivity between nodes and pods. For demonstrate it, I'll create"\
-  "set of Nginx pods and demonstrate traffic path, for example, between node"\
-  "from rack #1 and pod, running on node #2."\
+  "Let's check now that k8s cluster with such configuration works properly and"\
+  "provides connectivity between nodes and pods. To demonstrate it, I'll create"\
+  "set of Nginx pods and show traffic path, for example, between node"\
+  "from rack #1 and pod running on node in rack #2."\
   ""\
   "Creating pods:"
 echo
@@ -204,13 +206,13 @@ run "ssh $NODE_CP kubectl get deployments -o wide"
 run "ssh $NODE_CP kubectl get pods -o wide | grep nginx"
 TGT_IP=$(ssh $NODE_CP kubectl get pods -o wide | grep nginx | grep $NODE_W2 | tail -n1 | awk '{print $6}')
 echo ; msg \
-  "Now will be demonstrated path from node $NODE_W1 to POD with IP $TGT_IP"
+  "Now let's check the path from node $NODE_W1 to POD with IP $TGT_IP"
 echo
 run "ssh $NODE_W1 traceroute $TGT_IP"
 echo ; msg \
   "As you can see, routing information was transfered successfully, which is "\
-  "confirmed by traceroute result, shown above." \
-  "" \
+  "confirmed by traceroute result, shown above."\
+  ""\
   "  that's all..."
 
 sleep $LONG
